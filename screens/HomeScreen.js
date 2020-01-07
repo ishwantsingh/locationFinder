@@ -20,7 +20,7 @@ export default class HomeScreen extends Component {
       this._getLocationAsync();
     }
   }
-
+  //check
   _getLocationAsync = async () => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== "granted") {
