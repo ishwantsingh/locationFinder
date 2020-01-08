@@ -30,44 +30,6 @@ export default class HomeScreen extends Component {
     }
   }
 
-  // componentDidMount() {
-  //   function setLocation() {
-  //     firestore
-  //       .collection("devices")
-  //       .doc(this.state.id)
-  //       .add({
-  //         createdAt: new Date(),
-  //         location: this.state.location,
-  //         id: this.state.id
-  //       });
-  //   }
-  //   setLocation()
-  //     .then(docRef => {
-  //       console.log("Document written with ID: ", docRef.id);
-  //     })
-  //     .cathc(err => console.log(err));
-  // }
-  //check
-
-  // componentDidMount() {
-  //   setLocation = () => {
-  //     console.log("boo");
-  //     return () => console.log("booooo");
-  //     firestore
-  //       .collection("devices")
-  //       .add({
-  //         createdAt: new Date(),
-  //         location: this.state.location,
-  //         id: this.state.id
-  //       })
-  //       .then(function(docRef) {
-  //         console.log("Document written with ID: ", docRef.id);
-  //       })
-  //       .catch(function(error) {
-  //         console.error("Error adding document: ", error);
-  //       });
-  //   };
-  // }
   _getLocationAsync = async () => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== "granted") {
@@ -76,42 +38,55 @@ export default class HomeScreen extends Component {
       });
     }
 
-    // Add a GeoDocument to a GeoCollection
-    // geocollection.add({
-    //   name: 'Geofirestore',
-    //   score: 100,
-    //   // The coordinates field must be a GeoPoint!
-    //   coordinates: (this.state.location.coords.latitude,this.state.location.coords.longitude)
-    // })
-
     let location = await Location.getCurrentPositionAsync({});
     this.setState({ location: location, id: uuid() });
+
     let myFirstPromise = new Promise((resolve, reject) => {
-      // geofirestore.collection("devices2").add({
-      //   g: "devices2",
-      //   l:
-      //   createdAt: new Date(),
-      //   location: this.state.location,
-      //   id: this.state.id
-      // });
-      geofirestore.collection("devices2").add({
-        name: "Geofirestore",
-        score: 100,
-        // The coordinates field must be a GeoPoint!
-        coordinates: new firebase.firestore.GeoPoint(
+      const query = geofirestore.collection("devices2").near({
+        center: new firebase.firestore.GeoPoint(
           this.state.location.coords.latitude,
           this.state.location.coords.longitude
-        )
+        ),
+        radius: 1000
       });
-      console.log("oooooooooooof");
-    })
-      .then(docRef => {
-        console.log("Document written with ID: ", docRef);
-        resolve("Success!");
-      })
-      .catch(function(error) {
-        console.error("Error adding document: ", error);
+
+      // Get query (as Promise)
+      query.get().then(value => {
+        // All GeoDocument returned by GeoQuery, like the GeoDocument added above
+        console.log("WUTTT");
+        console.log(value.docs);
       });
+    });
+    // BELOW THIS WORKS
+
+    // let myFirstPromise = new Promise((resolve, reject) => {
+    //   // geofirestore.collection("devices2").add({
+    //   //   g: "devices2",
+    //   //   l:
+    //   //   createdAt: new Date(),
+    //   //   location: this.state.location,
+    //   //   id: this.state.id
+    //   // });
+    //   geofirestore.collection("devices2").add({
+    //     name: "Geofirestore",
+    //     score: 100,
+    //     // The coordinates field must be a GeoPoint!
+    //     coordinates: new firebase.firestore.GeoPoint(
+    //       this.state.location.coords.latitude,
+    //       this.state.location.coords.longitude
+    //     )
+    //   });
+    //   console.log("oooooooooooof");
+    // })
+    //   .then(docRef => {
+    //     console.log("Document written with ID: ", docRef);
+    //     resolve("Success!");
+    //   })
+    //   .catch(function(error) {
+    //     console.error("Error adding document: ", error);
+    //   });
+
+    ////  ABOVE THIS WORKS
     //     .then(() =>
     //       firestore
     //         .collection("devices")
@@ -132,6 +107,23 @@ export default class HomeScreen extends Component {
     //     });
     //   console.log(this.state);
   };
+
+  // _getDocsAsync = async () => {
+  //   const query = await geocollection.near({
+  //     center: new firebase.firestore.GeoPoint(
+  //       (this.state.location.coords.latitude,
+  //       this.state.location.coords.longitude)
+  //     ),
+  //     radius: 1000
+  //   });
+
+  //   // Get query (as Promise)
+  //   query.get().then(value => {
+  //     // All GeoDocument returned by GeoQuery, like the GeoDocument added above
+  //     console.log("WUTTT");
+  //     console.log(value.docs);
+  //   });
+  // };
 
   render() {
     let text = "Waiting..";
