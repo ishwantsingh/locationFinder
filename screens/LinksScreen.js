@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  Button
-} from "react-native";
-
+import { StyleSheet, Text, View, Image, Button } from "react-native";
 import { login, logout } from "../state/actions/authAction";
 import { connect } from "react-redux";
 
@@ -63,8 +55,8 @@ const LoginPage = props => {
 const LoggedInPage = props => {
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Welcome:{props.user.name}</Text>
-      <Image style={styles.image} source={{ uri: props.user.photoUrl }} />
+      <Text style={styles.header}>Welcome:{props.name}</Text>
+      <Image style={styles.image} source={{ uri: props.photoUrl }} />
     </View>
   );
 };

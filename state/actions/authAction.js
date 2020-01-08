@@ -1,6 +1,7 @@
 import { myFirebase, firestore } from "../../components/fb/config";
 import { setData } from "./setDataAction";
 import firebase from "firebase";
+import * as Google from "expo-google-app-auth";
 
 export const AUTH_SUCCESS = "AUTH_SUCCESS";
 export const AUTH_FAIL = "AUTH_FAIL";
@@ -116,39 +117,91 @@ const authFail = error => {
 //       dispatch(loginError());
 //     });
 // };
+// export const login = () => dispatch => {
+//   var provider = new firebase.auth.GoogleAuthProvider();
+//   dispatch(requestLogin());
+//   myFirebase
+//     .auth()
+//     .signInWithRedirect(provider)
+//     .then(function(result) {
+//       // This gives you a Google Access Token. You can use it to access the Google API.
+//       var token = result.credential.accessToken;
+//       // The signed-in user info.
+//       var user = result.user;
+//       dispatch(authSuccess(user));
+//       dispatch(receiveLogin(user));
+//     })
+//     .then(user => {
+//       console.log("lub lub");
+//       dispatch(setData(user.uid, user.uid)); //sender and reciever id same for this app
+//       console.log("hub hub hub");
+//     })
+//     .catch(function(error) {
+//       // Handle Errors here.
+//       var errorCode = error.code;
+//       var errorMessage = error.message;
+//       // The email of the user's account used.
+//       var email = error.email;
+//       // The firebase.auth.AuthCredential type that was used.
+//       var credential = error.credential;
+//       // ...
+//       console.log("error", error);
+//       dispatch(authFail(error));
+//       dispatch(loginError());
+//     });
+// };
+
 export const login = () => dispatch => {
-  var provider = new firebase.auth.GoogleAuthProvider();
   dispatch(requestLogin());
-  myFirebase
-    .auth()
-    .signInWithRedirect(provider)
-    .then(function(result) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      var token = result.credential.accessToken;
-      // The signed-in user info.
-      var user = result.user;
-      dispatch(authSuccess(user));
-      dispatch(receiveLogin(user));
-    })
-    .then(user => {
-      console.log("lub lub");
-      dispatch(setData(user.uid, user.uid)); //sender and reciever id same for this app
-      console.log("hub hub hub");
-    })
-    .catch(function(error) {
-      // Handle Errors here.
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      // The email of the user's account used.
-      var email = error.email;
-      // The firebase.auth.AuthCredential type that was used.
-      var credential = error.credential;
-      // ...
-      console.log("error", error);
-      dispatch(authFail(error));
-      dispatch(loginError());
-    });
+  dispatch(signIn());
 };
+
+function signIn() {
+  return dispatch => {
+    let signInPromise = new Promise((resolve, reject) => {
+      const result = Google.logInAsync({
+        androidClientId:
+          "273563789709-k2705a26h2o5io0pa7oifbplg4gg98gl.apps.googleusercontent.com",
+        //iosClientId: YOUR_CLIENT_ID_HERE,  <-- if you use iOS
+        scopes: ["profile", "email"]
+      });
+      resolve(result);
+      reject("some error occured");
+    });
+    signInPromise
+      .then(result => {
+        dispatch(authSuccess(result.user));
+        dispatch(receiveLogin(result.user));
+        console.log("dataRecieved", result);
+      })
+      .catch(error => {
+        console.log("error", error);
+        dispatch(authFail(error));
+        dispatch(loginError());
+      });
+  };
+}
+
+// let signIn = async dispatch => {
+//   try {
+//     const result = await Expo.Google.logInAsync({
+//       androidClientId:
+//         "273563789709-k2705a26h2o5io0pa7oifbplg4gg98gl.apps.googleusercontent.com",
+//       //iosClientId: YOUR_CLIENT_ID_HERE,  <-- if you use iOS
+//       scopes: ["profile", "email"]
+//     });
+//     if (result.type === "success") {
+//       dispatch(authSuccess(result.user));
+//       dispatch(receiveLogin(result.user));
+//     } else {
+//       console.log("cancelled");
+//     }
+//   } catch (e) {
+//     console.log("error", e);
+//     dispatch(authFail(e));
+//     dispatch(loginError());
+//   }
+// };
 
 export const logout = () => dispatch => {
   myFirebase
