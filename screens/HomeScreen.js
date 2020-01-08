@@ -3,6 +3,15 @@ import { Platform, Text, View, StyleSheet } from "react-native";
 import Constants from "expo-constants";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
+import uuid from "uuid";
+import * as firebase from "firebase/app";
+import "firebase/firestore";
+
+import {
+  firestore,
+  geofirestore,
+  geocollection
+} from "../components/fb/config";
 
 export default class HomeScreen extends Component {
   state = {
@@ -10,7 +19,7 @@ export default class HomeScreen extends Component {
     errorMessage: null
   };
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     if (Platform.OS === "android" && !Constants.isDevice) {
       this.setState({
         errorMessage:
@@ -20,7 +29,45 @@ export default class HomeScreen extends Component {
       this._getLocationAsync();
     }
   }
+
+  // componentDidMount() {
+  //   function setLocation() {
+  //     firestore
+  //       .collection("devices")
+  //       .doc(this.state.id)
+  //       .add({
+  //         createdAt: new Date(),
+  //         location: this.state.location,
+  //         id: this.state.id
+  //       });
+  //   }
+  //   setLocation()
+  //     .then(docRef => {
+  //       console.log("Document written with ID: ", docRef.id);
+  //     })
+  //     .cathc(err => console.log(err));
+  // }
   //check
+
+  // componentDidMount() {
+  //   setLocation = () => {
+  //     console.log("boo");
+  //     return () => console.log("booooo");
+  //     firestore
+  //       .collection("devices")
+  //       .add({
+  //         createdAt: new Date(),
+  //         location: this.state.location,
+  //         id: this.state.id
+  //       })
+  //       .then(function(docRef) {
+  //         console.log("Document written with ID: ", docRef.id);
+  //       })
+  //       .catch(function(error) {
+  //         console.error("Error adding document: ", error);
+  //       });
+  //   };
+  // }
   _getLocationAsync = async () => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== "granted") {
@@ -29,8 +76,61 @@ export default class HomeScreen extends Component {
       });
     }
 
+    // Add a GeoDocument to a GeoCollection
+    // geocollection.add({
+    //   name: 'Geofirestore',
+    //   score: 100,
+    //   // The coordinates field must be a GeoPoint!
+    //   coordinates: (this.state.location.coords.latitude,this.state.location.coords.longitude)
+    // })
+
     let location = await Location.getCurrentPositionAsync({});
-    this.setState({ location });
+    this.setState({ location: location, id: uuid() });
+    let myFirstPromise = new Promise((resolve, reject) => {
+      // geofirestore.collection("devices2").add({
+      //   g: "devices2",
+      //   l:
+      //   createdAt: new Date(),
+      //   location: this.state.location,
+      //   id: this.state.id
+      // });
+      geofirestore.collection("devices2").add({
+        name: "Geofirestore",
+        score: 100,
+        // The coordinates field must be a GeoPoint!
+        coordinates: new firebase.firestore.GeoPoint(
+          this.state.location.coords.latitude,
+          this.state.location.coords.longitude
+        )
+      });
+      console.log("oooooooooooof");
+    })
+      .then(docRef => {
+        console.log("Document written with ID: ", docRef);
+        resolve("Success!");
+      })
+      .catch(function(error) {
+        console.error("Error adding document: ", error);
+      });
+    //     .then(() =>
+    //       firestore
+    //         .collection("devices")
+    //         .add({
+    //           createdAt: new Date(),
+    //           location: this.state.location,
+    //           id: this.state.id
+    //         })
+    //         .then(function(docRef) {
+    //           console.log("Document written with ID: ", docRef.id);
+    //         })
+    //         .catch(function(error) {
+    //           console.error("Error adding document: ", error);
+    //         })
+    //     )
+    //     .catch(function(error) {
+    //       console.error("Error adding document: ", error);
+    //     });
+    //   console.log(this.state);
   };
 
   render() {
