@@ -1,8 +1,8 @@
 import {
   AUTH_SUCCESS,
   AUTH_FAIL,
-  SIGNUP_SUCCESS,
-  SIGNUP_ERROR,
+  // SIGNUP_SUCCESS,
+  // SIGNUP_ERROR,
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
@@ -23,8 +23,8 @@ const initialState = {
   logoutError: false,
   isAuthenticated: false,
   user: {},
-  newUser: {},
-  signupErr: ""
+  newUser: {}
+  //  signupErr: ""
 };
 
 const authReducer = (state = initialState, action) => {
@@ -38,16 +38,16 @@ const authReducer = (state = initialState, action) => {
       };
     case AUTH_FAIL:
       return { ...state, authError: action.payload, authCompleted: false };
-    case SIGNUP_SUCCESS:
-      return {
-        ...state,
-        newUser: action.payload
-      };
-    case SIGNUP_ERROR:
-      return {
-        ...state,
-        signupErr: action.payload
-      };
+    // case SIGNUP_SUCCESS:
+    //   return {
+    //     ...state,
+    //     newUser: action.payload
+    //   };
+    // case SIGNUP_ERROR:
+    //   return {
+    //     ...state,
+    //     signupErr: action.payload
+    //   };
     case LOGIN_REQUEST:
       return {
         ...state,

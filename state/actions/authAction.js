@@ -1,6 +1,6 @@
 import { myFirebase, firestore } from "../../components/fb/config";
 import { setData } from "./setDataAction";
-//import firebase from "firebase";
+import firebase from "firebase";
 
 export const AUTH_SUCCESS = "AUTH_SUCCESS";
 export const AUTH_FAIL = "AUTH_FAIL";
@@ -117,10 +117,11 @@ const authFail = error => {
 //     });
 // };
 export const login = () => dispatch => {
+  var provider = new firebase.auth.GoogleAuthProvider();
   dispatch(requestLogin());
   myFirebase
     .auth()
-    .signInWithPopup(provider)
+    .signInWithRedirect(provider)
     .then(function(result) {
       // This gives you a Google Access Token. You can use it to access the Google API.
       var token = result.credential.accessToken;
