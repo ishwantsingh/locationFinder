@@ -20,6 +20,7 @@ export const LOGOUT_FAILURE = "LOGOUT_FAILURE";
 export const VERIFY_REQUEST = "VERIFY_REQUEST";
 export const VERIFY_SUCCESS = "VERIFY_SUCCESS";
 
+export const AUTH_TOKEN = "AUTH_TOKEN";
 const requestLogin = () => {
   return {
     type: LOGIN_REQUEST
@@ -76,6 +77,13 @@ const authSuccess = user => {
   };
 };
 
+const accessToken = token => {
+  return {
+    type: AUTH_TOKEN,
+    payload: { token }
+  };
+};
+
 const authFail = error => {
   return {
     type: AUTH_FAIL,
@@ -117,39 +125,6 @@ const authFail = error => {
 //       dispatch(loginError());
 //     });
 // };
-// export const login = () => dispatch => {
-//   var provider = new firebase.auth.GoogleAuthProvider();
-//   dispatch(requestLogin());
-//   myFirebase
-//     .auth()
-//     .signInWithRedirect(provider)
-//     .then(function(result) {
-//       // This gives you a Google Access Token. You can use it to access the Google API.
-//       var token = result.credential.accessToken;
-//       // The signed-in user info.
-//       var user = result.user;
-//       dispatch(authSuccess(user));
-//       dispatch(receiveLogin(user));
-//     })
-//     .then(user => {
-//       console.log("lub lub");
-//       dispatch(setData(user.uid, user.uid)); //sender and reciever id same for this app
-//       console.log("hub hub hub");
-//     })
-//     .catch(function(error) {
-//       // Handle Errors here.
-//       var errorCode = error.code;
-//       var errorMessage = error.message;
-//       // The email of the user's account used.
-//       var email = error.email;
-//       // The firebase.auth.AuthCredential type that was used.
-//       var credential = error.credential;
-//       // ...
-//       console.log("error", error);
-//       dispatch(authFail(error));
-//       dispatch(loginError());
-//     });
-// };
 
 export const login = () => dispatch => {
   dispatch(requestLogin());
@@ -170,6 +145,7 @@ function signIn() {
     });
     signInPromise
       .then(result => {
+        dispatch(accessToken(result.accessToken));
         dispatch(authSuccess(result.user));
         dispatch(receiveLogin(result.user));
         console.log("dataRecieved", result);
@@ -182,41 +158,50 @@ function signIn() {
   };
 }
 
-// let signIn = async dispatch => {
-//   try {
-//     const result = await Expo.Google.logInAsync({
-//       androidClientId:
-//         "273563789709-k2705a26h2o5io0pa7oifbplg4gg98gl.apps.googleusercontent.com",
-//       //iosClientId: YOUR_CLIENT_ID_HERE,  <-- if you use iOS
-//       scopes: ["profile", "email"]
-//     });
-//     if (result.type === "success") {
-//       dispatch(authSuccess(result.user));
-//       dispatch(receiveLogin(result.user));
-//     } else {
-//       console.log("cancelled");
-//     }
-//   } catch (e) {
-//     console.log("error", e);
-//     dispatch(authFail(e));
-//     dispatch(loginError());
-//   }
-// };
-
-export const logout = () => dispatch => {
-  myFirebase
-    .auth()
-    .signOut()
-    .then(function() {
-      console.log("signout success");
-      dispatch(receiveLogout());
-    })
-    .catch(function(error) {
-      // An error happened.
-      console.log("signout error", error);
-      dispatch(logoutError());
-    });
+export const logout = accessToken => dispatch => {
+  dispatch(requestLogout());
+  dispatch(signOut(accessToken));
 };
+
+function signOut(accessToken) {
+  return dispatch => {
+    let signOutPromise = new Promise((resolve, reject) => {
+      const result = Google.logOutAsync({
+        accessToken,
+        androidClientId:
+          "273563789709-k2705a26h2o5io0pa7oifbplg4gg98gl.apps.googleusercontent.com",
+        //iosClientId: YOUR_CLIENT_ID_HERE,  <-- if you use iOS
+        scopes: ["profile", "email"]
+      });
+      resolve(result);
+      reject("some error occured");
+    });
+    signOutPromise
+      .then(result => {
+        dispatch(receiveLogout());
+        console.log("signout success", result);
+      })
+      .catch(error => {
+        console.log("sign out error", error);
+        dispatch(logoutError());
+      });
+  };
+}
+
+// export const logout = () => dispatch => {
+//   myFirebase
+//     .auth()
+//     .signOut()
+//     .then(function() {
+//       console.log("signout success");
+//       dispatch(receiveLogout());
+//     })
+//     .catch(function(error) {
+//       // An error happened.
+//       console.log("signout error", error);
+//       dispatch(logoutError());
+//     });
+// };
 
 export const verifyAuth = () => dispatch => {
   dispatch(verifyRequest());

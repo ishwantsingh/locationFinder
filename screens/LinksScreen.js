@@ -3,10 +3,6 @@ import { StyleSheet, Text, View, Image, Button } from "react-native";
 import { login, logout } from "../state/actions/authAction";
 import { connect } from "react-redux";
 
-/* <View style={styles.buttonContainer}>
-<Button onPress={props.logout} title="Sign Out" />
-</View> */
-
 class LinksScreen extends React.Component {
   render() {
     return (
@@ -15,6 +11,7 @@ class LinksScreen extends React.Component {
           <LoggedInPage
             name={this.props.user.name}
             photoUrl={this.props.user.photoUrl}
+            logout={this.props.logout}
           />
         ) : (
           <LoginPage login={this.props.login} />
@@ -57,6 +54,7 @@ const LoggedInPage = props => {
     <View style={styles.container}>
       <Text style={styles.header}>Welcome:{props.name}</Text>
       <Image style={styles.image} source={{ uri: props.photoUrl }} />
+      <Button onPress={() => props.logout()} title="Sign Out" />
     </View>
   );
 };

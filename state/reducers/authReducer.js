@@ -10,7 +10,8 @@ import {
   LOGOUT_SUCCESS,
   LOGOUT_FAILURE,
   VERIFY_REQUEST,
-  VERIFY_SUCCESS
+  VERIFY_SUCCESS,
+  AUTH_TOKEN
 } from "../actions/authAction";
 
 const initialState = {
@@ -23,7 +24,8 @@ const initialState = {
   logoutError: false,
   isAuthenticated: false,
   user: {},
-  newUser: {}
+  newUser: {},
+  accessToken: ""
   //  signupErr: ""
 };
 
@@ -35,6 +37,11 @@ const authReducer = (state = initialState, action) => {
         authCompleted: true,
         authError: null,
         user: action.payload.user
+      };
+    case AUTH_TOKEN:
+      return {
+        ...state,
+        accessToken: action.payload
       };
     case AUTH_FAIL:
       return { ...state, authError: action.payload, authCompleted: false };
@@ -72,7 +79,8 @@ const authReducer = (state = initialState, action) => {
       return {
         ...state,
         isLoggingOut: true,
-        logoutError: false
+        logoutError: false,
+        isAuthenticated: false
       };
     case LOGOUT_SUCCESS:
       return {
