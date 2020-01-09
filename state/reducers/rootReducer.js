@@ -1,12 +1,12 @@
 import { combineReducers } from "redux";
 
-//import setDataReducer from "./setDataReducer";
+import setUserReducer from "./setUserReducer";
 import authReducer from "./authReducer";
 //import { sendMessageReducer } from "./newMessageReducer";
 
 const rootReducer = combineReducers({
-  authInfo: authReducer
-  //  data: setDataReducer,
+  authInfo: authReducer,
+  setUser: setUserReducer
   //  sentMessageStatus: sendMessageReducer
 });
 

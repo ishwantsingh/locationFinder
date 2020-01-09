@@ -11,6 +11,7 @@ class LinksScreen extends React.Component {
           <LoggedInPage
             name={this.props.user.name}
             photoUrl={this.props.user.photoUrl}
+            accessToken={this.props.accessToken}
             logout={this.props.logout}
           />
         ) : (
@@ -29,14 +30,15 @@ function mapStateToProps(state) {
     isLoggingIn: state.authInfo.isLoggingIn,
     loginError: state.authInfo.loginError,
     isAuthenticated: state.authInfo.isAuthenticated,
-    user: state.authInfo.user
+    user: state.authInfo.user,
+    accessToken: state.authInfo.accessToken
   };
 }
 
 const mapDispatchToProps = dispatch => {
   return {
     login: () => dispatch(login()),
-    logout: () => dispatch(logout())
+    logout: accessToken => dispatch(logout(accessToken))
   };
 };
 
@@ -54,7 +56,10 @@ const LoggedInPage = props => {
     <View style={styles.container}>
       <Text style={styles.header}>Welcome:{props.name}</Text>
       <Image style={styles.image} source={{ uri: props.photoUrl }} />
-      <Button onPress={() => props.logout()} title="Sign Out" />
+      <Button
+        onPress={() => props.logout(props.accessToken)}
+        title="Sign Out"
+      />
     </View>
   );
 };
