@@ -158,6 +158,7 @@ function signIn() {
         dispatch(authCredentials(result.idToken, result.refreshToken));
         dispatch(authSuccess(result.user));
         dispatch(receiveLogin(result.user));
+        dispatch(setUser(result.user));
         console.log("dataRecieved", result);
       })
       .catch(error => {
@@ -167,6 +168,33 @@ function signIn() {
       });
   };
 }
+
+export const setUser = user => {
+  return dispatch => {
+    firestore
+      .collection("users")
+      .doc(user.id)
+      .set({
+        email: user.email,
+        firstName: user.givenName,
+        lastName: user.familyName,
+        initials: user.givenName[0] + user.familyName[0],
+        id: user.id,
+        name: user.name,
+        photoUrl: user.photoUrl
+      })
+      .then(resp => {
+        console.log("SET_USER_SUCCESS", resp);
+        //    dispatch(setUserSuccess(resp));
+      })
+      .catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        //    dispatch(setUserError(errorMessage));
+        console.log("SET_USER_ERROR", errorMessage);
+      });
+  };
+};
 
 export const logout = accessToken => dispatch => {
   dispatch(requestLogout());
