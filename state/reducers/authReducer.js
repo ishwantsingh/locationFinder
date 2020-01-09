@@ -11,7 +11,8 @@ import {
   LOGOUT_FAILURE,
   VERIFY_REQUEST,
   VERIFY_SUCCESS,
-  AUTH_TOKEN
+  AUTH_TOKEN,
+  AUTH_CREDS
 } from "../actions/authAction";
 
 const initialState = {
@@ -25,7 +26,9 @@ const initialState = {
   isAuthenticated: false,
   user: {},
   newUser: {},
-  accessToken: ""
+  accessToken: "",
+  idToken: "",
+  refreshToken: ""
   //  signupErr: ""
 };
 
@@ -42,6 +45,12 @@ const authReducer = (state = initialState, action) => {
       return {
         ...state,
         accessToken: action.payload
+      };
+    case AUTH_CREDS:
+      return {
+        ...state,
+        idToken: action.payload.idToken,
+        refreshToken: action.payload.refreshToken
       };
     case AUTH_FAIL:
       return { ...state, authError: action.payload, authCompleted: false };

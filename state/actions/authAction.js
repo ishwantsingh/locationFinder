@@ -21,6 +21,8 @@ export const VERIFY_REQUEST = "VERIFY_REQUEST";
 export const VERIFY_SUCCESS = "VERIFY_SUCCESS";
 
 export const AUTH_TOKEN = "AUTH_TOKEN";
+export const AUTH_CREDS = "AUTH_CREDS";
+
 const requestLogin = () => {
   return {
     type: LOGIN_REQUEST
@@ -81,6 +83,13 @@ const accessToken = token => {
   return {
     type: AUTH_TOKEN,
     payload: { token }
+  };
+};
+
+const authCredentials = (idToken, refreshToken) => {
+  return {
+    type: AUTH_CREDS,
+    payload: { idToken, refreshToken }
   };
 };
 
@@ -146,6 +155,7 @@ function signIn() {
     signInPromise
       .then(result => {
         dispatch(accessToken(result.accessToken));
+        dispatch(authCredentials(result.idToken, result.refreshToken));
         dispatch(authSuccess(result.user));
         dispatch(receiveLogin(result.user));
         console.log("dataRecieved", result);
