@@ -24,6 +24,10 @@ export const VERIFY_SUCCESS = "VERIFY_SUCCESS";
 export const AUTH_TOKEN = "AUTH_TOKEN";
 export const AUTH_CREDS = "AUTH_CREDS";
 
+export const FIREBASE_USERAUTH_SETTING = "FIREBASE_USERAUTH_SETTING";
+export const FIREBASE_USERAUTH_SUCCESS = "FIREBASE_USERAUTH_SUCCESS";
+export const FIREBASE_USERAUTH_ERROR = "FIREBASE_USERAUTH_ERROR";
+
 const requestLogin = () => {
   return {
     type: LOGIN_REQUEST
@@ -101,6 +105,25 @@ const authFail = error => {
   };
 };
 
+const firebaseUserAuthSetting = () => {
+  return {
+    type: FIREBASE_USERAUTH_SETTING
+  };
+};
+
+const firebaseUserAuthSuccess = () => {
+  return {
+    type: FIREBASE_USERAUTH_SUCCESS
+  };
+};
+
+const firebaseUserAuthError = error => {
+  return {
+    type: FIREBASE_USERAUTH_ERROR,
+    payload: { error }
+  };
+};
+
 // const signupSuccess = user => {
 //   return {
 //     type: SIGNUP_SUCCESS,
@@ -146,7 +169,7 @@ function signIn() {
     let signInPromise = new Promise((resolve, reject) => {
       const result = Google.logInAsync({
         androidClientId:
-          "273563789709-k2705a26h2o5io0pa7oifbplg4gg98gl.apps.googleusercontent.com",
+          "843786178997-rerdkeff8ifvdmfdh6u81nlcpifkukra.apps.googleusercontent.com",
         //iosClientId: YOUR_CLIENT_ID_HERE,  <-- if you use iOS
         scopes: ["profile", "email"]
       });
@@ -159,6 +182,8 @@ function signIn() {
         dispatch(authCredentials(result.idToken, result.refreshToken));
         dispatch(authSuccess(result.user));
         dispatch(receiveLogin(result.user));
+        dispatch(onSignIn(result));
+        dispatch(firebaseUserAuthSetting());
         dispatch(setUser(result.user));
         console.log("dataRecieved", result);
       })
@@ -169,6 +194,69 @@ function signIn() {
       });
   };
 }
+
+isUserEqual = (googleUser, firebaseUser) => {
+  if (firebaseUser) {
+    var providerData = firebaseUser.providerData;
+    for (var i = 0; i < providerData.length; i++) {
+      if (
+        providerData[i].providerId ===
+          firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
+        providerData[i].uid === googleUser.idToken //getBasicProfile().getId()
+      ) {
+        // We don't need to reauth the Firebase connection.
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+onSignIn = googleUser => {
+  console.log("Google Auth Response", googleUser);
+  return dispatch => {
+    let unsubscribePromise = new Promise((resolve, reject) => {
+      var unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
+        unsubscribe();
+        // Check if we are already signed-in Firebase with the correct user.
+        if (!isUserEqual(googleUser, firebaseUser)) {
+          // Build Firebase credential with the Google ID token.
+          var credential = firebase.auth.GoogleAuthProvider.credential(
+            googleUser.idToken,
+            googleUser.accessToken
+          );
+          // Sign in with credential from the Google user.
+
+          firebase
+            .auth()
+            .signInWithCredential(credential)
+            .then(res => {
+              console.log(res);
+              dispatch(firebaseUserAuthSuccess());
+              resolve(res);
+            })
+            .catch(error => {
+              var errorCode = error.code;
+              var errorMessage = error.message;
+              // The email of the user's account used.
+              var email = error.email;
+              // The firebase.auth.AuthCredential type that was used.
+              var credential = error.credential;
+              dispatch(firebaseUserAuthError(error));
+              reject("some error occured");
+            });
+        } else {
+          console.log("User already signed-in Firebase.");
+          resolve("User already signed-in Firebase.");
+          reject("some error occured");
+        }
+      });
+    });
+    // unsubscribePromise.then((res) =>
+    // )
+    // We need to register an Observer on Firebase Auth to make sure auth is initialized.
+  };
+};
 
 export const logout = accessToken => dispatch => {
   dispatch(requestLogout());
@@ -181,7 +269,7 @@ function signOut(accessToken) {
       const result = Google.logOutAsync({
         accessToken,
         androidClientId:
-          "273563789709-k2705a26h2o5io0pa7oifbplg4gg98gl.apps.googleusercontent.com",
+          "843786178997-rerdkeff8ifvdmfdh6u81nlcpifkukra.apps.googleusercontent.com",
         //iosClientId: YOUR_CLIENT_ID_HERE,  <-- if you use iOS
         scopes: ["profile", "email"]
       });
@@ -220,7 +308,7 @@ export const verifyAuth = () => dispatch => {
   myFirebase.auth().onAuthStateChanged(user => {
     if (user !== null) {
       console.log("auth change user", user);
-      dispatch(setData(user.uid, user.uid));
+      //  dispatch(setData(user.uid, user.uid));
       dispatch(receiveLogin(user));
     }
     console.log("okie dokie");

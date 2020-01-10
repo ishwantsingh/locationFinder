@@ -12,7 +12,10 @@ import {
   VERIFY_REQUEST,
   VERIFY_SUCCESS,
   AUTH_TOKEN,
-  AUTH_CREDS
+  AUTH_CREDS,
+  FIREBASE_USERAUTH_SETTING,
+  FIREBASE_USERAUTH_SUCCESS,
+  FIREBASE_USERAUTH_ERROR
 } from "../actions/authAction";
 
 const initialState = {
@@ -28,7 +31,10 @@ const initialState = {
   newUser: {},
   accessToken: "",
   idToken: "",
-  refreshToken: ""
+  refreshToken: "",
+  firbaseAuthSetting: false,
+  firebaseAuthSuccess: false,
+  firebaseAuthError: null
   //  signupErr: ""
 };
 
@@ -116,6 +122,23 @@ const authReducer = (state = initialState, action) => {
       return {
         ...state,
         isVerifying: false
+      };
+    case FIREBASE_USERAUTH_SETTING:
+      return {
+        ...state,
+        firbaseAuthSetting: true
+      };
+    case FIREBASE_USERAUTH_SUCCESS:
+      return {
+        ...state,
+        firbaseAuthSetting: false,
+        firebaseAuthSuccess: true
+      };
+    case FIREBASE_USERAUTH_ERROR:
+      return {
+        ...state,
+        firbaseAuthSetting: false,
+        firebaseAuthError: action.payload
       };
     default:
       return state;
