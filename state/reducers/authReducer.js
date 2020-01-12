@@ -26,9 +26,10 @@ const initialState = {
   isVerifying: false,
   loginError: false,
   logoutError: false,
+  loginErrorMessage: null,
   isAuthenticated: false,
   user: {},
-  newUser: {},
+  // newUser: {},
   accessToken: "",
   idToken: "",
   refreshToken: "",
@@ -88,7 +89,8 @@ const authReducer = (state = initialState, action) => {
         ...state,
         isLoggingIn: false,
         isAuthenticated: false,
-        loginError: true
+        loginError: true,
+        authError: action.payload
       };
     case LOGOUT_REQUEST:
       return {
@@ -104,13 +106,15 @@ const authReducer = (state = initialState, action) => {
         isAuthenticated: false,
         authCompleted: false,
         user: {},
-        newUser: {}
+        loginErrorMessage: null
+        // newUser: {}
       };
     case LOGOUT_FAILURE:
       return {
         ...state,
         isLoggingOut: false,
-        logoutError: true
+        logoutError: true,
+        loginErrorMessage: action.payload
       };
     case VERIFY_REQUEST:
       return {
