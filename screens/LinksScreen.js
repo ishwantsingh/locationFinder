@@ -26,14 +26,23 @@ LinksScreen.navigationOptions = {
 };
 
 function mapStateToProps(state) {
-  console.log("user is+>", state.authInfo.user.providerData[0].photoURL);
+  console.log("user is+>", state.authInfo.user);
+  if (state.authInfo.user.providerData !== undefined) {
+    return {
+      isLoggingIn: state.authInfo.isLoggingIn,
+      loginError: state.authInfo.loginError,
+      isAuthenticated: state.authInfo.isAuthenticated,
+      name: state.authInfo.user.providerData[0].displayName,
+      profilePic: state.authInfo.user.providerData[0].photoURL,
+      accessToken: state.authInfo.accessToken.token
+    };
+  }
   return {
     isLoggingIn: state.authInfo.isLoggingIn,
     loginError: state.authInfo.loginError,
     isAuthenticated: state.authInfo.isAuthenticated,
-    user: state.authInfo.user.providerData[0] || {},
-    name: state.authInfo.user.providerData[0].displayName,
-    profilePic: state.authInfo.user.providerData[0].photoURL,
+    name: "",
+    profilePic: "",
     accessToken: state.authInfo.accessToken.token
   };
 }
