@@ -9,8 +9,8 @@ class LinksScreen extends React.Component {
       <View style={styles.container}>
         {this.props.isAuthenticated ? (
           <LoggedInPage
-            //   name={this.props.user.displayName}
-            photoUrl={this.props.user.photoUrl}
+            name={this.props.name}
+            photoUrl={this.props.profilePic}
             accessToken={this.props.accessToken}
             logout={this.props.logout}
           />
@@ -26,12 +26,14 @@ LinksScreen.navigationOptions = {
 };
 
 function mapStateToProps(state) {
-  console.log("user is+>", state.authInfo.user);
+  console.log("user is+>", state.authInfo.user.providerData[0].photoURL);
   return {
     isLoggingIn: state.authInfo.isLoggingIn,
     loginError: state.authInfo.loginError,
     isAuthenticated: state.authInfo.isAuthenticated,
-    user: state.authInfo.user,
+    user: state.authInfo.user.providerData[0] || {},
+    name: state.authInfo.user.providerData[0].displayName,
+    profilePic: state.authInfo.user.providerData[0].photoURL,
     accessToken: state.authInfo.accessToken.token
   };
 }
@@ -55,7 +57,7 @@ const LoginPage = props => {
 const LoggedInPage = props => {
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.header}>Welcome:{props.name}</Text> */}
+      <Text style={styles.header}>Welcome:{props.name}</Text>
       <Image style={styles.image} source={{ uri: props.photoUrl }} />
       <Button
         onPress={() => props.logout(props.accessToken)}

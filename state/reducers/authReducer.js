@@ -28,7 +28,7 @@ const initialState = {
   logoutError: false,
   loginErrorMessage: null,
   isAuthenticated: false,
-  user: {},
+  user: null,
   // newUser: {},
   accessToken: "",
   idToken: "",
