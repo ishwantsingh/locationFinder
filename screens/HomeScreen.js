@@ -68,8 +68,8 @@ export default class HomeScreen extends Component {
     //   //   id: this.state.id
     //   // });
     //   geofirestore.collection("devices2").add({
-    //     name: "Geofirestore",
-    //     score: 100,
+    //     name: "Geofirestore", // add any data here instead of name and score. that is dummy data
+    //     score: 100,            // replace by actual data
     //     // The coordinates field must be a GeoPoint!
     //     coordinates: new firebase.firestore.GeoPoint(
     //       this.state.location.coords.latitude,
