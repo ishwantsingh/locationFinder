@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Platform, Text, View, StyleSheet } from "react-native";
+import { Platform, Text, View, StyleSheet, Button } from "react-native";
 import Constants from "expo-constants";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
@@ -41,7 +41,7 @@ export default class HomeScreen extends Component {
     let location = await Location.getCurrentPositionAsync({});
     this.setState({ location: location, id: uuid() });
 
-    let myFirstPromise = new Promise((resolve, reject) => {
+    let getNearbyDevicesPromise = new Promise((resolve, reject) => {
       const query = geofirestore.collection("devices2").near({
         center: new firebase.firestore.GeoPoint(
           this.state.location.coords.latitude,
@@ -57,56 +57,95 @@ export default class HomeScreen extends Component {
         console.log(value.docs);
       });
     });
-    // BELOW THIS WORKS
-
-    // let myFirstPromise = new Promise((resolve, reject) => {
-    //   // geofirestore.collection("devices2").add({
-    //   //   g: "devices2",
-    //   //   l:
-    //   //   createdAt: new Date(),
-    //   //   location: this.state.location,
-    //   //   id: this.state.id
-    //   // });
-    //   geofirestore.collection("devices2").add({
-    //     name: "Geofirestore", // add any data here instead of name and score. that is dummy data
-    //     score: 100,            // replace by actual data
-    //     // The coordinates field must be a GeoPoint!
-    //     coordinates: new firebase.firestore.GeoPoint(
-    //       this.state.location.coords.latitude,
-    //       this.state.location.coords.longitude
-    //     )
-    //   });
-    //   console.log("oooooooooooof");
-    // })
-    //   .then(docRef => {
-    //     console.log("Document written with ID: ", docRef);
-    //     resolve("Success!");
-    //   })
-    //   .catch(function(error) {
-    //     console.error("Error adding document: ", error);
-    //   });
-
-    ////  ABOVE THIS WORKS
-    //     .then(() =>
-    //       firestore
-    //         .collection("devices")
-    //         .add({
-    //           createdAt: new Date(),
-    //           location: this.state.location,
-    //           id: this.state.id
-    //         })
-    //         .then(function(docRef) {
-    //           console.log("Document written with ID: ", docRef.id);
-    //         })
-    //         .catch(function(error) {
-    //           console.error("Error adding document: ", error);
-    //         })
-    //     )
-    //     .catch(function(error) {
-    //       console.error("Error adding document: ", error);
-    //     });
-    //   console.log(this.state);
   };
+  // BELOW THIS WORKS
+
+  // geofirestore.collection("devices2").add({
+  //   g: "devices2",
+  //   l:
+  //   createdAt: new Date(),
+  //   location: this.state.location,
+  //   id: this.state.id
+  // });
+  //   geofirestore.collection("devices2").add({
+  //     name: "Geofirestore", // add any data here instead of name and score. that is dummy data
+  //     score: 100,            // replace by actual data
+  //     // The coordinates field must be a GeoPoint!
+  //     coordinates: new firebase.firestore.GeoPoint(
+  //       this.state.location.coords.latitude,
+  //       this.state.location.coords.longitude
+  //     )
+  //   });
+  //   console.log("oooooooooooof");
+  // })
+  //   .then(docRef => {
+  //     console.log("Document written with ID: ", docRef);
+  //     resolve("Success!");
+  //   })
+  //   .catch(function(error) {
+  //     console.error("Error adding document: ", error);
+  //   });
+
+  _setLocationAsync = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== "granted") {
+      this.setState({
+        errorMessage: "Permission to access location was denied"
+      });
+    }
+
+    let location = await Location.getCurrentPositionAsync({});
+    this.setState({ location: location, id: uuid() });
+
+    let setCurrentLocationPromise = new Promise((resolve, reject) => {
+      geofirestore
+        .collection("devices2")
+        .add({
+          name: "Geofirestore", // add any data here instead of name and score. that is dummy data
+          score: 100, // replace by actual data
+          // The coordinates field must be a GeoPoint!
+          coordinates: new firebase.firestore.GeoPoint(
+            this.state.location.coords.latitude,
+            this.state.location.coords.longitude
+          )
+        })
+        .then(docRef => {
+          console.log("Document written with ID: ", docRef);
+          resolve(docRef);
+        })
+        .catch(function(error) {
+          console.error("Error adding document: ", error);
+          reject(error);
+        });
+      console.log("oooooooooooof");
+    });
+    setCurrentLocationPromise
+      .then(res => console.log("Res", res))
+      .catch(function(error) {
+        console.error("error", error);
+      });
+  };
+
+  ////  ABOVE THIS WORKS
+  //     .then(() =>
+  //       firestore
+  //         .collection("devices")
+  //         .add({
+  //           createdAt: new Date(),
+  //           location: this.state.location,
+  //           id: this.state.id
+  //         })
+  //         .then(function(docRef) {
+  //           console.log("Document written with ID: ", docRef.id);
+  //         })
+  //         .catch(function(error) {
+  //           console.error("Error adding document: ", error);
+  //         })
+  //     )
+  //     .catch(function(error) {
+  //       console.error("Error adding document: ", error);
+  //     });
+  //   console.log(this.state);
 
   // _getDocsAsync = async () => {
   //   const query = await geocollection.near({
@@ -136,6 +175,7 @@ export default class HomeScreen extends Component {
     return (
       <View style={styles.container}>
         <Text style={styles.paragraph}>{text}</Text>
+        <Button title="set location" onPress={() => this._setLocationAsync()} />
       </View>
     );
   }

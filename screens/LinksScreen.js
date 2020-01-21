@@ -27,7 +27,10 @@ LinksScreen.navigationOptions = {
 
 function mapStateToProps(state) {
   console.log("user is+>", state.authInfo.user);
-  if (state.authInfo.user.providerData !== undefined) {
+  if (
+    state.authInfo.user !== null &&
+    state.authInfo.user.providerData !== undefined
+  ) {
     return {
       isLoggingIn: state.authInfo.isLoggingIn,
       loginError: state.authInfo.loginError,
@@ -36,15 +39,15 @@ function mapStateToProps(state) {
       profilePic: state.authInfo.user.providerData[0].photoURL,
       accessToken: state.authInfo.accessToken.token
     };
-  }
-  return {
-    isLoggingIn: state.authInfo.isLoggingIn,
-    loginError: state.authInfo.loginError,
-    isAuthenticated: state.authInfo.isAuthenticated,
-    name: "",
-    profilePic: "",
-    accessToken: state.authInfo.accessToken.token
-  };
+  } else if (state.authInfo.user === null || undefined)
+    return {
+      isLoggingIn: state.authInfo.isLoggingIn,
+      loginError: state.authInfo.loginError,
+      isAuthenticated: state.authInfo.isAuthenticated,
+      name: "",
+      profilePic: "",
+      accessToken: state.authInfo.accessToken.token
+    };
 }
 
 const mapDispatchToProps = dispatch => {
