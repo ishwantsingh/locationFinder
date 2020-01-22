@@ -31,23 +31,11 @@ export default class SettingsScreen extends React.Component {
       await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
         accuracy: Location.Accuracy.Balanced,
         showsBackgroundLocationIndicator: true
-        //  timeInterval: 6000,
-        //  distanceInterval: 0
       })
         .then(res => {
           console.log("bg loc response", res);
         })
         .catch(err => console.log("err", err));
-
-      // await Location.watchPositionAsync(
-      //   {
-      //     accuracy: Location.Accuracy.Highest,
-      //     timeInterval: 100
-      //   },
-      //   function(res) {
-      //     console.log("current loc updates", res);
-      //   }
-      // );
     }
   };
 

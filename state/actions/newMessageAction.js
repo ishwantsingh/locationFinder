@@ -53,3 +53,26 @@
 //       });
 //   };
 // }
+
+export const NEW_LOC_SET = "NEW_LOC_SET";
+export const NEW_LOC_ERR = "NEW_LOC_ERR";
+export const SETTING_NEW_LOC = "SETTING_NEW_LOC";
+
+export const setLoc = loc => {
+  return {
+    type: NEW_LOC_SET,
+    payload: { loc }
+  };
+};
+
+export const setLocError = err => {
+  return {
+    type: NEW_LOC_ERR,
+    payload: { err }
+  };
+};
+export const settingLoc = () => {
+  return {
+    type: SETTING_NEW_LOC
+  };
+};

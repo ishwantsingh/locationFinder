@@ -22,3 +22,28 @@
 //       return state;
 //   }
 // }
+
+import {
+  NEW_LOC_SET,
+  NEW_LOC_ERR,
+  SETTING_NEW_LOC
+} from "../actions/newMessageAction";
+
+const initialState = {
+  loc: {},
+  setErr: null,
+  settingLoc: false
+};
+
+export function setLocReducer(state = initialState, action) {
+  switch (action.type) {
+    case NEW_LOC_SET:
+      return { ...state, loc: action.payload.loc, settingLoc: false };
+    case NEW_LOC_ERR:
+      return { ...state, setErr: action.payload, settingLoc: false };
+    case SETTING_NEW_LOC:
+      return { ...state, settingLoc: true };
+    default:
+      return state;
+  }
+}
