@@ -9,7 +9,7 @@ import * as firebase from "firebase/app";
 import "firebase/firestore";
 import { connect } from "react-redux";
 
-import { locationData } from "../App";
+//import { locationData } from "../App";
 import { setLoc } from "../state/actions/newMessageAction";
 
 export const LOCATION_TASK_NAME = "background-location-task";
@@ -27,60 +27,69 @@ class HomeScreen extends Component {
       location: null,
       errorMessage: null
     };
-    this.onPress();
+    //   this.onPress();
   }
 
   // background location function
-  onPress = async () => {
-    const { status } = await Location.requestPermissionsAsync();
-    if (status === "granted") {
-      await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-        accuracy: Location.Accuracy.Balanced,
-        showsBackgroundLocationIndicator: true
-      })
-        .then(res => {
-          console.log("imported locationData", locationData);
-          this.setState({ location: res });
-          if (this.props.coords !== null) {
-            let setCurrentLocationPromise = new Promise((resolve, reject) => {
-              geofirestore
-                .collection("devices2")
-                .doc(this.props.uid)
-                .add({
-                  name: this.props.name, // add any data here instead of name and score. that is dummy data
-                  score: 100, // replace by actual data
-                  // The coordinates field must be a GeoPoint!
-                  coordinates: new firebase.firestore.GeoPoint(
-                    this.props.coords.latitude,
-                    this.props.coords.longitude
-                  )
-                })
-                .then(docRef => {
-                  console.log("Document written with ID: ", docRef);
-                  resolve(docRef);
-                })
-                .catch(function(error) {
-                  console.error("Error adding document: ", error);
-                  reject(error);
-                });
-              console.log("oooooooooooof");
-            });
-            setCurrentLocationPromise
-              .then(res => console.log("Res", res))
-              .catch(function(error) {
-                console.error("error", error);
-              });
-          }
-        })
-        .catch(err => console.log("err", err));
-    }
-  };
+  // onPress = async () => {
+  //   const { status } = await Location.requestPermissionsAsync();
+  //   if (status === "granted") {
+  //     await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+  //       accuracy: Location.Accuracy.Balanced,
+  //       showsBackgroundLocationIndicator: true
+  //     })
+  //       .then(res => {
+  //         console.log("imported locationData", locationData);
+  //         this.setState({ location: res });
+  //         if (this.props.coords !== null) {
+  //           let setCurrentLocationPromise = new Promise((resolve, reject) => {
+  //             geofirestore
+  //               .collection("devices2")
+  //               .doc(this.props.uid)
+  //               .add({
+  //                 name: this.props.name, // add any data here instead of name and score. that is dummy data
+  //                 score: 100, // replace by actual data
+  //                 // The coordinates field must be a GeoPoint!
+  //                 coordinates: new firebase.firestore.GeoPoint(
+  //                   this.props.coords.latitude,
+  //                   this.props.coords.longitude
+  //                 )
+  //               })
+  //               .then(docRef => {
+  //                 console.log("Document written with ID: ", docRef);
+  //                 resolve(docRef);
+  //               })
+  //               .catch(function(error) {
+  //                 console.error("Error adding document: ", error);
+  //                 reject(error);
+  //               });
+  //             console.log("oooooooooooof");
+  //           });
+  //           setCurrentLocationPromise
+  //             .then(res => console.log("Res", res))
+  //             .catch(function(error) {
+  //               console.error("error", error);
+  //             });
+  //         }
+  //       })
+  //       .catch(err => console.log("err", err));
+  //   }
+  // };
 
-  UNSAFE_componentWillReceiveProps() {
-    if (locationData !== {}) {
-      this.props.setLoc(locationData);
-    }
-  }
+  // UNSAFE_componentWillReceiveProps() {
+  //   if (locationData !== {}) {
+  //     this.props.setLoc(locationData);
+  //   }
+  // }
+
+  // setUid = () => {
+  // };
+
+  // componentWillUpdate() {
+  //   if (this.props.uid !== null) {
+  //     uid = this.props.uid;
+  //   }
+  // }
 
   UNSAFE_componentWillMount() {
     if (Platform.OS === "android" && !Constants.isDevice) {
@@ -116,7 +125,6 @@ class HomeScreen extends Component {
       // Get query (as Promise)
       query.get().then(value => {
         // All GeoDocument returned by GeoQuery, like the GeoDocument added above
-        console.log("WUTTT");
         console.log(value.docs);
       });
     });
@@ -180,7 +188,6 @@ class HomeScreen extends Component {
           console.error("Error adding document: ", error);
           reject(error);
         });
-      console.log("oooooooooooof");
     });
     setCurrentLocationPromise
       .then(res => console.log("Res", res))
@@ -239,52 +246,52 @@ class HomeScreen extends Component {
       <View style={styles.container}>
         <Text style={styles.paragraph}>{text}</Text>
         <Button title="set location" onPress={() => this._setLocationAsync()} />
+        {/* <Button title="set uid" onPress={() => this.setUid()} /> */}
       </View>
     );
   }
 }
 
 function mapStateToProps(state) {
-  console.log("STATE LOC IS", state.setLocReducer.loc);
+  // console.log("STATE LOC IS", state.setLocReducer.loc);
   if (
     state.authInfo.user !== null &&
-    state.authInfo.user.providerData !== undefined &&
-    state.setLocReducer.loc !== {}
+    state.authInfo.user.providerData !== undefined // &&
+    //  state.setLocReducer.loc !== {}
   ) {
     return {
       isAuthenticated: state.authInfo.isAuthenticated,
       uid: state.authInfo.user.providerData[0].uid,
       name: state.authInfo.user.providerData[0].name,
-      accessToken: state.authInfo.accessToken.token,
-      coords: state.setLocReducer.loc[0].coords
+      accessToken: state.authInfo.accessToken.token
+      //     coords: state.setLocReducer.loc[0].coords
     };
   } else if (state.authInfo.user === null || undefined)
     return {
       isAuthenticated: state.authInfo.isAuthenticated,
       uid: null,
       name: "",
-      accessToken: state.authInfo.accessToken.token,
-      coords: null
+      accessToken: state.authInfo.accessToken.token
+      //  coords: null
     };
   else {
     return { coords: null };
   }
 }
 
-const mapDispatchToProps = dispatch => {
-  return {
-    setLoc: loc => dispatch(setLoc(loc))
-  };
-};
-TaskManager.getTaskOptionsAsync(LOCATION_TASK_NAME).then(res =>
-  console.log("task res", res)
-);
+// const mapDispatchToProps = dispatch => {
+//   return {
+//     setLoc: loc => dispatch(setLoc(loc))
+//   };
+// };
 
 HomeScreen.navigationOptions = {
   header: null
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
+export let uid;
+
+export default connect(mapStateToProps, {})(HomeScreen);
 
 const styles = StyleSheet.create({
   container: {

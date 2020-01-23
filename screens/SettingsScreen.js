@@ -8,7 +8,7 @@ export const LOCATION_TASK_NAME = "background-location-task";
 export default class SettingsScreen extends React.Component {
   constructor() {
     super();
-    this.onPress();
+    //   this.onPress();
   }
 
   onPress = async () => {

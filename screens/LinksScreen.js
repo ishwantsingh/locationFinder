@@ -3,17 +3,21 @@ import { StyleSheet, Text, View, Image, Button } from "react-native";
 import { login, logout } from "../state/actions/authAction";
 import { connect } from "react-redux";
 
+export const UidContext = React.createContext("");
+
 class LinksScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
         {this.props.isAuthenticated ? (
-          <LoggedInPage
-            name={this.props.name}
-            photoUrl={this.props.profilePic}
-            accessToken={this.props.accessToken}
-            logout={this.props.logout}
-          />
+          <UidContext.Provider value={this.props.uid}>
+            <LoggedInPage
+              name={this.props.name}
+              photoUrl={this.props.profilePic}
+              accessToken={this.props.accessToken}
+              logout={this.props.logout}
+            />
+          </UidContext.Provider>
         ) : (
           <LoginPage login={this.props.login} />
         )}
@@ -26,7 +30,6 @@ LinksScreen.navigationOptions = {
 };
 
 function mapStateToProps(state) {
-  console.log("user is+>", state.authInfo.user);
   if (
     state.authInfo.user !== null &&
     state.authInfo.user.providerData !== undefined
@@ -37,7 +40,8 @@ function mapStateToProps(state) {
       isAuthenticated: state.authInfo.isAuthenticated,
       name: state.authInfo.user.providerData[0].displayName,
       profilePic: state.authInfo.user.providerData[0].photoURL,
-      accessToken: state.authInfo.accessToken.token
+      accessToken: state.authInfo.accessToken.token,
+      uid: state.authInfo.user.providerData[0].uid
     };
   } else if (state.authInfo.user === null || undefined)
     return {
@@ -46,6 +50,7 @@ function mapStateToProps(state) {
       isAuthenticated: state.authInfo.isAuthenticated,
       name: "",
       profilePic: "",
+      uid: "",
       accessToken: state.authInfo.accessToken.token
     };
 }
