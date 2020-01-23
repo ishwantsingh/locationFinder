@@ -14,7 +14,7 @@ import { UidContext } from "./screens/LinksScreen";
 
 const store = configureStore();
 
-var uid_value;
+var uid_value = "2";
 
 export default class App extends React.Component {
   // static contextType = UidContext;

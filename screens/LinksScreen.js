@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Image, Button } from "react-native";
 import { login, logout } from "../state/actions/authAction";
 import { connect } from "react-redux";
 
-export const UidContext = React.createContext("");
+export const UidContext = React.createContext("2");
 
 class LinksScreen extends React.Component {
   render() {
@@ -50,7 +50,7 @@ function mapStateToProps(state) {
       isAuthenticated: state.authInfo.isAuthenticated,
       name: "",
       profilePic: "",
-      uid: "",
+      uid: "2",
       accessToken: state.authInfo.accessToken.token
     };
 }
