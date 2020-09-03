@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { Platform, Text, View, StyleSheet, Button } from "react-native";
+import React, {Component} from "react";
+import {Platform, Text, View, StyleSheet, Button} from "react-native";
 import Constants from "expo-constants";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
@@ -7,25 +7,23 @@ import * as TaskManager from "expo-task-manager";
 import uuid from "uuid";
 import * as firebase from "firebase/app";
 import "firebase/firestore";
-import { connect } from "react-redux";
+import {connect} from "react-redux";
 
 //import { locationData } from "../App";
-import { setLoc } from "../state/actions/newMessageAction";
+import {setLoc} from "../state/actions/newMessageAction";
 
 export const LOCATION_TASK_NAME = "background-location-task";
 
-import {
-  firestore,
-  geofirestore,
-  geocollection
-} from "../components/fb/config";
+import {firestore, geofirestore, geocollection} from "../components/fb/config";
+import {FlatList} from "react-native-gesture-handler";
 
 class HomeScreen extends Component {
   constructor() {
     super();
     this.state = {
       location: null,
-      errorMessage: null
+      errorMessage: null,
+      devices: []
     };
     //   this.onPress();
   }
@@ -91,44 +89,45 @@ class HomeScreen extends Component {
   //   }
   // }
 
-  UNSAFE_componentWillMount() {
-    if (Platform.OS === "android" && !Constants.isDevice) {
-      this.setState({
-        errorMessage:
-          "Oops, this will not work on Sketch in an Android emulator. Try it on your device!"
-      });
-    } else {
-      this._getLocationAsync();
-    }
-  }
+  // UNSAFE_componentWillMount() {
+  //   if (Platform.OS === "android" && !Constants.isDevice) {
+  //     this.setState({
+  //       errorMessage:
+  //         "Oops, this will not work on Sketch in an Android emulator. Try it on your device!"
+  //     });
+  //   } else {
+  //     this._getLocationAsync();
+  //   }
+  // }
 
-  _getLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status !== "granted") {
-      this.setState({
-        errorMessage: "Permission to access location was denied"
-      });
-    }
+  // _getLocationAsync = async () => {
+  //   let {status} = await Permissions.askAsync(Permissions.LOCATION);
+  //   if (status !== "granted") {
+  //     this.setState({
+  //       errorMessage: "Permission to access location was denied"
+  //     });
+  //   }
 
-    let location = await Location.getCurrentPositionAsync({});
-    this.setState({ location: location, id: uuid() });
+  //   let location = await Location.getCurrentPositionAsync({});
+  //   this.setState({location: location, id: uuid()});
 
-    let getNearbyDevicesPromise = new Promise((resolve, reject) => {
-      const query = geofirestore.collection("devices2").near({
-        center: new firebase.firestore.GeoPoint(
-          this.state.location.coords.latitude,
-          this.state.location.coords.longitude
-        ),
-        radius: 1000
-      });
+  //   let getNearbyDevicesPromise = new Promise((resolve, reject) => {
+  //     const query = geofirestore.collection("devices2").near({
+  //       center: new firebase.firestore.GeoPoint(
+  //         this.state.location.coords.latitude,
+  //         this.state.location.coords.longitude
+  //       ),
+  //       radius: 1000
+  //     });
 
-      // Get query (as Promise)
-      query.get().then(value => {
-        // All GeoDocument returned by GeoQuery, like the GeoDocument added above
-        console.log(value.docs);
-      });
-    });
-  };
+  //     // Get query (as Promise)
+  //     query.get().then((value) => {
+  //       // All GeoDocument returned by GeoQuery, like the GeoDocument added above
+  //       console.log("GET REQ", value.docs);
+  //       this.setState({devices: value.docs});
+  //     });
+  //   });
+  // };
   // BELOW THIS WORKS
 
   // geofirestore.collection("devices2").add({
@@ -158,7 +157,7 @@ class HomeScreen extends Component {
   //   });
 
   _setLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    let {status} = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== "granted") {
       this.setState({
         errorMessage: "Permission to access location was denied"
@@ -166,32 +165,39 @@ class HomeScreen extends Component {
     }
 
     let location = await Location.getCurrentPositionAsync({});
-    this.setState({ location: location, id: uuid() });
+    this.setState({
+      location: location,
+      id: uuid(),
+      errorMessage: null,
+      uid: this.props.uid
+    });
 
     let setCurrentLocationPromise = new Promise((resolve, reject) => {
+      console.log("name,id", this.props.name, this.props.uid);
       geofirestore
         .collection("devices2")
-        .add({
-          name: "Geofirestore", // add any data here instead of name and score. that is dummy data
-          score: 100, // replace by actual data
+        .doc(`${this.props.uid}`)
+        .set({
+          userName: this.props.name, // add any data here instead of name and score. that is dummy data
+          uid: this.props.uid, // replace by actual data
           // The coordinates field must be a GeoPoint!
           coordinates: new firebase.firestore.GeoPoint(
             this.state.location.coords.latitude,
             this.state.location.coords.longitude
           )
         })
-        .then(docRef => {
+        .then((docRef) => {
           console.log("Document written with ID: ", docRef);
           resolve(docRef);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.error("Error adding document: ", error);
           reject(error);
         });
     });
     setCurrentLocationPromise
-      .then(res => console.log("Res", res))
-      .catch(function(error) {
+      .then((res) => console.log("Res", res))
+      .catch(function (error) {
         console.error("error", error);
       });
   };
@@ -245,6 +251,20 @@ class HomeScreen extends Component {
     return (
       <View style={styles.container}>
         <Text style={styles.paragraph}>{text}</Text>
+
+        {/* <FlatList
+          data={this.state.devices}
+          renderItem={({device}) => {
+            device !== undefined ? (
+              <>
+                <Text style={styles.paragraph}>{device.distance}</Text>
+                <Text style={styles.paragraph}>{device.id}</Text>
+              </>
+            ) : (
+              <Text style={styles.paragraph}>please wait</Text>
+            );
+          }}
+        /> */}
         <Button title="set location" onPress={() => this._setLocationAsync()} />
         {/* <Button title="set uid" onPress={() => this.setUid()} /> */}
       </View>
@@ -259,10 +279,11 @@ function mapStateToProps(state) {
     state.authInfo.user.providerData !== undefined // &&
     //  state.setLocReducer.loc !== {}
   ) {
+    // console.log(state.authInfo.user);
     return {
       isAuthenticated: state.authInfo.isAuthenticated,
       uid: state.authInfo.user.providerData[0].uid,
-      name: state.authInfo.user.providerData[0].name,
+      name: state.authInfo.user.providerData[0].displayName,
       accessToken: state.authInfo.accessToken.token
       //     coords: state.setLocReducer.loc[0].coords
     };
@@ -275,7 +296,7 @@ function mapStateToProps(state) {
       //  coords: null
     };
   else {
-    return { coords: null };
+    return {coords: null};
   }
 }
 

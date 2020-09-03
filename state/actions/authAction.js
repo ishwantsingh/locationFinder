@@ -1,9 +1,9 @@
-import { myFirebase, firestore } from "../../components/fb/config";
+import {myFirebase, firestore} from "../../components/fb/config";
 import firebase from "firebase";
 import * as Google from "expo-google-app-auth";
-import { AsyncStorage, Alert } from "react-native";
+import {AsyncStorage, Alert} from "react-native";
 
-import { setUser } from "./setUserAction";
+import {setUser} from "./setUserAction";
 
 export const AUTH_SUCCESS = "AUTH_SUCCESS";
 export const AUTH_FAIL = "AUTH_FAIL";
@@ -35,17 +35,17 @@ const requestLogin = () => {
   };
 };
 
-const receiveLogin = user => {
+const receiveLogin = (user) => {
   return {
     type: LOGIN_SUCCESS,
     user
   };
 };
 
-const loginError = error => {
+const loginError = (error) => {
   return {
     type: LOGIN_FAILURE,
-    payload: { error }
+    payload: {error}
   };
 };
 
@@ -61,10 +61,10 @@ const receiveLogout = () => {
   };
 };
 
-const logoutError = error => {
+const logoutError = (error) => {
   return {
     type: LOGOUT_FAILURE,
-    payload: { error }
+    payload: {error}
   };
 };
 
@@ -87,17 +87,17 @@ const verifySuccess = () => {
 //   };
 // };
 
-const accessToken = token => {
+const accessToken = (token) => {
   return {
     type: AUTH_TOKEN,
-    payload: { token }
+    payload: {token}
   };
 };
 
 const authCredentials = (idToken, refreshToken) => {
   return {
     type: AUTH_CREDS,
-    payload: { idToken, refreshToken }
+    payload: {idToken, refreshToken}
   };
 };
 
@@ -120,10 +120,10 @@ const firebaseUserAuthSuccess = () => {
   };
 };
 
-const firebaseUserAuthError = error => {
+const firebaseUserAuthError = (error) => {
   return {
     type: FIREBASE_USERAUTH_ERROR,
-    payload: { error }
+    payload: {error}
   };
 };
 
@@ -162,13 +162,13 @@ const firebaseUserAuthError = error => {
 //     });
 // };
 
-export const login = () => dispatch => {
+export const login = () => (dispatch) => {
   dispatch(requestLogin());
   dispatch(signIn());
 };
 
 function signIn() {
-  return dispatch => {
+  return (dispatch) => {
     let signInPromise = new Promise((resolve, reject) => {
       const result = Google.logInAsync({
         androidClientId:
@@ -180,7 +180,7 @@ function signIn() {
       reject("some error occured");
     });
     signInPromise
-      .then(result => {
+      .then((result) => {
         console.log("sign in result => ", result);
         dispatch(accessToken(result.accessToken));
         () => {
@@ -196,7 +196,7 @@ function signIn() {
         dispatch(setUser(result.user));
         console.log("dataRecieved", result);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("error", error);
         //    dispatch(authFail(error));
         dispatch(loginError(error));
@@ -221,11 +221,11 @@ isUserEqual = (googleUser, firebaseUser) => {
   return false;
 };
 
-onSignIn = googleUser => {
-  console.log("Google Auth Response", googleUser);
-  return dispatch => {
+onSignIn = (googleUser) => {
+  // console.log("Google Auth Response", googleUser);
+  return (dispatch) => {
     let unsubscribePromise = new Promise((resolve, reject) => {
-      var unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
+      var unsubscribe = firebase.auth().onAuthStateChanged((firebaseUser) => {
         unsubscribe();
         // Check if we are already signed-in Firebase with the correct user.
         if (!isUserEqual(googleUser, firebaseUser)) {
@@ -239,8 +239,8 @@ onSignIn = googleUser => {
           firebase
             .auth()
             .signInWithCredential(credential)
-            .then(res => {
-              console.log("fireebase setup response user", res.user);
+            .then((res) => {
+              // console.log("fireebase setup response user", res.user);
               dispatch(firebaseUserAuthSuccess());
               dispatch(receiveLogin(res.user));
               // dispatch(accessToken(res.credential.accessToken));
@@ -250,7 +250,7 @@ onSignIn = googleUser => {
               resolve(res);
               dispatch(verifyAuth());
             })
-            .catch(error => {
+            .catch((error) => {
               var errorCode = error.code;
               var errorMessage = error.message;
               // The email of the user's account used.
@@ -273,14 +273,14 @@ onSignIn = googleUser => {
   };
 };
 
-export const logout = accessToken => dispatch => {
-  console.log("logout accessToken parameter => ", accessToken);
+export const logout = (accessToken) => (dispatch) => {
+  // console.log("logout accessToken parameter => ", accessToken);
   dispatch(requestLogout());
   dispatch(signOut(accessToken));
 };
 
 function signOut(accessToken) {
-  return dispatch => {
+  return (dispatch) => {
     let signOutPromise = new Promise((resolve, reject) => {
       const result = Google.logOutAsync({
         accessToken,
@@ -293,11 +293,11 @@ function signOut(accessToken) {
       reject("some error occured");
     });
     signOutPromise
-      .then(result => {
+      .then((result) => {
         dispatch(receiveLogout());
         console.log("signout success", result);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("sign out error", error);
         dispatch(logoutError(error));
       });
@@ -329,24 +329,24 @@ const getFromLocalStorage = async () => {
   }
 };
 
-const setToLocalStorage = async accessToken => {
+const setToLocalStorage = async (accessToken) => {
   try {
     await AsyncStorage.setItem("accessToken", JSON.stringify(accessToken));
   } catch (error) {
     Alert.alert("Error occured", `${error}`, [
-      { text: "OK", onPress: () => console.log("OK Pressed") }
+      {text: "OK", onPress: () => console.log("OK Pressed")}
     ]);
   }
 };
 
-export const verifyAuth = () => dispatch => {
+export const verifyAuth = () => (dispatch) => {
   dispatch(verifyRequest());
-  myFirebase.auth().onAuthStateChanged(user => {
+  myFirebase.auth().onAuthStateChanged((user) => {
     if (user !== null) {
-      console.log("vrify auth change user ", user);
-      getFromLocalStorage().then(function(res) {
+      // console.log("vrify auth change user ", user);
+      getFromLocalStorage().then(function (res) {
         let recievedData = res;
-        console.log("vrify auth change ACCESS TOKEN ", res);
+        // console.log("vrify auth change ACCESS TOKEN ", res);
         dispatch(accessToken(recievedData));
         return recievedData;
       }); //.then(recievedData => dispatch(accessToken(recievedData)));
@@ -354,7 +354,7 @@ export const verifyAuth = () => dispatch => {
       dispatch(receiveLogin(user));
       //    dispatch(accessToken(user.stsTokenManager.accessToken));
     }
-    console.log("okie dokie");
+    // console.log("okie dokie");
     dispatch(verifySuccess());
   });
 };

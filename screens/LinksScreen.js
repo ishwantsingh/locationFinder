@@ -1,9 +1,9 @@
 import React from "react";
-import { StyleSheet, Text, View, Image, Button } from "react-native";
-import { login, logout } from "../state/actions/authAction";
-import { connect } from "react-redux";
+import {StyleSheet, Text, View, Image, Button} from "react-native";
+import {login, logout} from "../state/actions/authAction";
+import {connect} from "react-redux";
 
-export const UidContext = React.createContext("2");
+export const UidContext = React.createContext(null);
 
 class LinksScreen extends React.Component {
   render() {
@@ -55,14 +55,14 @@ function mapStateToProps(state) {
     };
 }
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     login: () => dispatch(login()),
-    logout: accessToken => dispatch(logout(accessToken))
+    logout: (accessToken) => dispatch(logout(accessToken))
   };
 };
 
-const LoginPage = props => {
+const LoginPage = (props) => {
   return (
     <View>
       <Text style={styles.header}>Sign In With Google</Text>
@@ -71,11 +71,11 @@ const LoginPage = props => {
   );
 };
 
-const LoggedInPage = props => {
+const LoggedInPage = (props) => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Welcome:{props.name}</Text>
-      <Image style={styles.image} source={{ uri: props.photoUrl }} />
+      <Image style={styles.image} source={{uri: props.photoUrl}} />
       <Button
         onPress={() => props.logout(props.accessToken)}
         title="Sign Out"
