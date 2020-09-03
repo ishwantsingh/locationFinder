@@ -1,33 +1,17 @@
 import React from "react";
 import {Provider} from "react-redux";
 import * as TaskManager from "expo-task-manager";
-import * as Location from "expo-location";
 import * as firebase from "firebase/app";
 import "firebase/firestore";
 
 import configureStore from "./state/store";
 import AppContainer from "./AppContainer";
 import {LOCATION_TASK_NAME} from "./screens/SettingsScreen";
-import {
-  myFirebase,
-  firestore,
-  geofirestore,
-  geocollection
-} from "./components/fb/config";
-import {uid} from "./screens/HomeScreen";
-import {UidContext} from "./screens/LinksScreen";
+import {myFirebase, geofirestore} from "./components/fb/config";
 
 const store = configureStore();
 
-var uid_value = "2";
-
 export default class App extends React.Component {
-  // static contextType = UidContext;
-
-  // uid_value = this.context;
-
-  /* perform a side-effect at mount using the value of MyContext */
-
   render() {
     return (
       <Provider store={store}>
@@ -36,8 +20,6 @@ export default class App extends React.Component {
     );
   }
 }
-App.contextType = UidContext;
-//export let locationData = {};
 
 TaskManager.defineTask(LOCATION_TASK_NAME, ({data, error}) => {
   if (error) {
@@ -47,17 +29,12 @@ TaskManager.defineTask(LOCATION_TASK_NAME, ({data, error}) => {
   }
 
   if (data) {
-    const {locations} = data;
+    const {locations} = data; //comes in from settingsScreen where location is being updated in bg
     console.log("bg location data", locations[0].coords);
-    console.log("uid", uid_value);
-    //  locationData = locations;
-    // var user = firebase.auth().currentUser;
+
     myFirebase.auth().onAuthStateChanged((userAuth) => {
       var user = userAuth;
 
-      console.log("user", user);
-
-      // let setCurrentLocationPromise = new Promise((resolve, reject) => {
       geofirestore
         .collection("devices2")
         .doc(`${user.providerData[0].uid}`)
@@ -79,13 +56,6 @@ TaskManager.defineTask(LOCATION_TASK_NAME, ({data, error}) => {
           //  reject(error);
         });
     });
-    console.log("oooooooooooof");
-    // });
-    // setCurrentLocationPromise
-    //   .then(res => console.log("Res", res))
-    //   .catch(function(error) {
-    //     console.error("error", error);
-    //   });
 
     // do something with the locations captured in the background
   }

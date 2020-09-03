@@ -19,7 +19,6 @@ export const LOCATION_TASK_NAME = "background-location-task";
 export default class SettingsScreen extends React.Component {
   constructor() {
     super();
-    //   this.onPress();
     this.state = {
       location: null,
       errorMessage: null,
@@ -103,30 +102,15 @@ export default class SettingsScreen extends React.Component {
         <TouchableOpacity onPress={this._getLocationAsync}>
           <Text>get devices</Text>
         </TouchableOpacity>
-        {/* <Text style={styles.paragraph}>
-          {JSON.stringify(this.state.devices)}
-        </Text> */}
         <FlatList
           data={this.state.devices}
-          renderItem={
-            ({item}) => (
-              // console.log(item.data);
-              // device === undefined ? (
-              //   <Text style={styles.paragraph}>please wait</Text>
-              // ) : (
-              // <>
-              // {/* <Text style={styles.paragraph}>{device.distance}</Text> */}
-              <View>
-                <Text style={styles.paragraph}>Device ID:{item.id}</Text>
-                <Text style={styles.paragraph}>
-                  User:{item.data().userName}
-                </Text>
-                <Text style={styles.paragraph}>distance:{item.distance}km</Text>
-              </View>
-            )
-            // </>
-            // );
-          }
+          renderItem={({item}) => (
+            <View>
+              <Text style={styles.paragraph}>Device ID:{item.id}</Text>
+              <Text style={styles.paragraph}>User:{item.data().userName}</Text>
+              <Text style={styles.paragraph}>distance:{item.distance}km</Text>
+            </View>
+          )}
         />
       </View>
     );
